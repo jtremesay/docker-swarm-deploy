@@ -1,31 +1,57 @@
 # docker-swarm-deploy
 
 ## Description
-`docker-swarm-deploy` is a GitHub Action that allows you to deploy your application as a Docker stack to a remote Docker Swarm. It automates the process of logging into Docker Hub, configuring SSH access, creating a Docker context, and deploying your stack.
+`docker-swarm-deploy` est une GitHub Action qui vous permet de déployer votre application en tant que stack Docker sur un Docker Swarm distant. Elle automatise le processus de connexion à Docker Hub, de configuration de l'accès SSH, de création d'un contexte Docker et de déploiement de votre stack.
 
 ## Inputs
-The action requires the following inputs:
+L'action nécessite les entrées suivantes :
 
-| Input Name          | Description                                           | Required |
-|---------------------|-------------------------------------------------------|----------|
-| `docker_username`   | Docker Hub username for pushing and pulling images.   | Yes      |
-| `docker_api_key`    | Docker Hub API key associated with the username.      | Yes      |
-| `remote_host`       | Remote host to connect to.                            | Yes      |
-| `remote_host_name`  | Docker host name to connect to.                       | Yes      |
-| `server_user`       | Remote user for SSH connection.                       | Yes      |
-| `server_port`       | Remote port for SSH connection.                       | Yes      |
-| `ssh_private_key`   | SSH private key for authentication.                   | Yes      |
-| `ssh_known_hosts`   | SSH known hosts (e.g., SSH-ed25519 key).              | Yes      |
-| `service_name`      | Name of the service in the Docker Swarm.              | Yes      |
+| Input Name            | Description                                           | Required | Default        |
+|-----------------------|-------------------------------------------------------|----------|----------------|
+| `docker_compose_file` | Le chemin vers le fichier docker-compose à utiliser.  | No       | `compose.yml`  |
+| `docker_username`     | Nom d'utilisateur Docker Hub pour pousser et tirer des images. | Yes      |                |
+| `docker_api_key`      | Clé API Docker Hub associée au nom d'utilisateur.     | Yes      |                |
+| `remote_host`         | Hôte distant à connecter.                             | Yes      |                |
+| `remote_user`         | Utilisateur distant pour la connexion SSH.            | Yes      |                |
+| `remote_port`         | Port distant pour la connexion SSH.                   | No       | `22`           |
+| `ssh_private_key`     | Clé privée SSH pour l'authentification.               | Yes      |                |
+| `ssh_known_hosts`     | Hôtes connus SSH (par exemple, clé SSH-ed25519).      | Yes      |                |
+| `stack_name`          | Nom de la stack dans le Docker Swarm.                 | Yes      |                |
 
 ## Workflow Steps
-The action performs the following steps:
+L'action effectue les étapes suivantes :
 
-1. **Login to Docker Hub**: Logs into Docker Hub using the provided credentials.
-2. **Create Private Key**: Configures SSH access by creating a private key, setting up the SSH config, and adding known hosts.
-3. **Create Docker Context**: Creates and switches to a Docker context for the remote host.
-4. **Checkout Repository**: Checks out the repository to access the `compose.yml` file.
-5. **Deploy to Server**: Deploys the Docker stack using the `docker stack deploy` command with the provided service name.
+1. **Connexion à Docker Hub** : Se connecte à Docker Hub en utilisant les identifiants fournis.
+2. **Création de la clé privée** : Configure l'accès SSH en créant une clé privée, en configurant le fichier SSH et en ajoutant les hôtes connus.
+3. **Création du contexte Docker** : Crée et bascule vers un contexte Docker pour l'hôte distant.
+4. **Checkout du dépôt** : Récupère le dépôt pour accéder au fichier `docker-compose`.
+5. **Déploiement sur le serveur** : Déploie la stack Docker en utilisant la commande `docker stack deploy` avec le nom de stack fourni.
 
 ## Example Usage
-Below is an example of how to use this action in a GitHub workflow:
+Voici un exemple d'utilisation de cette action dans un workflow GitHub :
+
+```yaml
+name: Deploy to Docker Swarm
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Docker Swarm
+        uses: ./ # Remplacez par le chemin ou le repo de l'action
+        with:
+          docker_compose_file: compose.yml
+          docker_username: ${{ secrets.DOCKER_USERNAME }}
+          docker_api_key: ${{ secrets.DOCKER_API_KEY }}
+          remote_host: ${{ secrets.REMOTE_HOST }}
+          remote_user: ${{ secrets.REMOTE_USER }}
+          remote_port: 22
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh_known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          stack_name: my-docker-stack
+```

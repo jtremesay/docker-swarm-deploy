@@ -2,6 +2,10 @@ name: docker-swarm-deploy
 author: Skeyp
 description: A GitHub Action that enables you to publish your app as a Docker stack to a remote Docker swarm.
 inputs:
+  docker_compose_file:
+    description: The path to the docker-compose file to use
+    required: false
+    default: compose.yml
   docker_username:
     description: The docker user repository to push and pull to/from
     required: true
@@ -16,7 +20,8 @@ inputs:
     required: true
   remote_port:
     description: Remote port to use
-    required: true
+    required: false
+    default: "22"
   ssh_private_key:
     description: SSH private key to use to connect
     required: true
@@ -38,50 +43,37 @@ runs:
             password: ${{ inputs.docker_api_key }}
 
       - name: Create private key
-        env:
-            REMOTE_HOST: ${{ inputs.remote_host }}
-            REMOTE_USER: ${{ inputs.remote_user }}
-            REMOTE_PORT: ${{ inputs.remote_port }}
-            SSH_PRIVATE_KEY: ${{ inputs.ssh_private_key }}
-            SSH_KNOWN_HOSTS: ${{ inputs.ssh_known_hosts }}
-            
+        shell: bash
         run: |
             mkdir -p ~/.ssh/
-            echo "$SSH_PRIVATE_KEY" >  ~/.ssh/private.key
+            echo "${{ inputs.ssh_private_key }}" >  ~/.ssh/private.key
             sudo chmod 600  ~/.ssh/private.key
             printf "Host docker
-                HostName $REMOTE_HOST
-                User $REMOTE_USER
-                Port $REMOTE_PORT
+                HostName ${{ inputs.remote_host }}
+                User ${{ inputs.remote_user }}
+                Port ${{ inputs.remote_port }}
                 IdentityFile ~/.ssh/private.key" > ~/.ssh/config
-            printf "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-
-            echo "ssh config:"
-            cat ~/.ssh/config
-            
-            echo "know hosts:"
-            cat ~/.ssh/known_hosts
-
-        shell: bash
+            printf "${{ inputs.ssh_known_hosts }}" > ~/.ssh/known_hosts
 
       - name: Create Docker Context
         shell: bash
         run: |
             docker context create docker --docker "host=ssh://docker"
             docker context use docker
-        
 
         # allows checkout for the sole docker-compose file we need
       - uses: actions/checkout@v4
         with:
             sparse-checkout: |
-                compose.yml
+                ${{ inputs.docker_compose_file }}
             sparse-checkout-cone-mode: false
 
       - name: Deploy to server
         shell: bash
         run: |
-            docker stack deploy --compose-file compose.yml --with-registry-auth --prune $STACK_NAME
-        env:
-            STACK_NAME: ${{ inputs.stack_name }}
+            docker stack deploy --compose-file ${{ inputs.docker_compose_file }} --with-registry-auth --prune ${{ inputs.stack_name }}
+
+
+            
+
 
