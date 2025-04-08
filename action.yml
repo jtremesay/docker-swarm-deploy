@@ -44,7 +44,6 @@ runs:
             REMOTE_PORT: ${{ inputs.remote_port }}
             SSH_PRIVATE_KEY: ${{ inputs.ssh_private_key }}
             SSH_KNOWN_HOSTS: ${{ inputs.ssh_known_hosts }}
-            STACK_NAME: ${{ inputs.stack_name }}
             
         run: |
             mkdir -p ~/.ssh/
@@ -83,4 +82,6 @@ runs:
         shell: bash
         run: |
             docker stack deploy --compose-file compose.yml --with-registry-auth --prune $STACK_NAME
+        env:
+            STACK_NAME: ${{ inputs.stack_name }}
 
