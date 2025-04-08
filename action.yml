@@ -41,12 +41,12 @@ jobs:
 
         - name: Create private key
           env:
-              REMOTE_HOST: ${{ input.remote_host }}
-              REMOTE_USER: ${{ input.remote_user }}
-              REMOTE_PORT: ${{ input.remote_port }}
-              SSH_PRIVATE_KEY: ${{ input.ssh_private_key }}
-              SSH_KNOWN_HOSTS: ${{ input.ssh_known_hosts }}
-              STACK_NAME: ${{ input.stack_name }}
+              REMOTE_HOST: ${{ inputs.remote_host }}
+              REMOTE_USER: ${{ inputs.remote_user }}
+              REMOTE_PORT: ${{ inputs.remote_port }}
+              SSH_PRIVATE_KEY: ${{ inputs.ssh_private_key }}
+              SSH_KNOWN_HOSTS: ${{ inputs.ssh_known_hosts }}
+              STACK_NAME: ${{ inputs.stack_name }}
               
           run: |
               mkdir -p ~/.ssh/
