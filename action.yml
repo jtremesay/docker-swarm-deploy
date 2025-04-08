@@ -50,9 +50,9 @@ runs:
             echo "$SSH_PRIVATE_KEY" >  ~/.ssh/private.key
             sudo chmod 600  ~/.ssh/private.key
             printf "Host docker
-                HostName $SSH_HOST
-                User $SERVER_USER
-                Port $SERVER_PORT
+                HostName $REMOTE_HOST
+                User $REMOTE_USER
+                Port $REMOTE_PORT
                 IdentityFile ~/.ssh/private.key" > ~/.ssh/config
             printf "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
