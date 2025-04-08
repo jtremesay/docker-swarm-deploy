@@ -30,59 +30,60 @@ inputs:
     description: The name of your service in the swarm
     required: true
 
-deploy:
-  runs-on: ubuntu-latest
-  needs: build
-  if: github.ref == 'refs/heads/master'
-  steps:
-      - name: Login to Docker hub
-        uses: docker/login-action@v3
-        with:
-            username: ${{ inputs.docker_username }}
-            password: ${{ inputs.docker_api_key }}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    steps:
+        - name: Login to Docker hub
+          uses: docker/login-action@v3
+          with:
+              username: ${{ inputs.docker_username }}
+              password: ${{ inputs.docker_api_key }}
 
-      - name: Create private key
-        env:
-            REMOTE_HOST: ${{ input.remote_host }}
-            REMOTE_HOST_NAME: ${{ input.remote_host_name }}
-            SERVER_USER: ${{ input.server_user }}
-            SERVER_PORT: ${{ input.server_port }}
-            SSH_PRIVATE_KEY: ${{ input.ssh_private_key }}
-            SSH_KNOWN_HOSTS: ${{ input.ssh_known_hosts }}
-            SERVICE_NAME: ${{ input.service_name }}
-            
-        run: |
-            mkdir -p ~/.ssh/
-            echo "$SSH_PRIVATE_KEY" >  ~/.ssh/private.key
-            sudo chmod 600  ~/.ssh/private.key
-            printf "Host $SSH_HOST
-                HostName $SSH_HOST_NAME
-                User $SERVER_USER
-                Port $SERVER_PORT
-                IdentityFile ~/.ssh/private.key" > ~/.ssh/config
-            printf "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        - name: Create private key
+          env:
+              REMOTE_HOST: ${{ input.remote_host }}
+              REMOTE_HOST_NAME: ${{ input.remote_host_name }}
+              SERVER_USER: ${{ input.server_user }}
+              SERVER_PORT: ${{ input.server_port }}
+              SSH_PRIVATE_KEY: ${{ input.ssh_private_key }}
+              SSH_KNOWN_HOSTS: ${{ input.ssh_known_hosts }}
+              SERVICE_NAME: ${{ input.service_name }}
+              
+          run: |
+              mkdir -p ~/.ssh/
+              echo "$SSH_PRIVATE_KEY" >  ~/.ssh/private.key
+              sudo chmod 600  ~/.ssh/private.key
+              printf "Host $SSH_HOST
+                  HostName $SSH_HOST_NAME
+                  User $SERVER_USER
+                  Port $SERVER_PORT
+                  IdentityFile ~/.ssh/private.key" > ~/.ssh/config
+              printf "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
-            echo "ssh config:"
-            cat ~/.ssh/config
-            
-            echo "know hosts:"
-            cat ~/.ssh/known_hosts
+              echo "ssh config:"
+              cat ~/.ssh/config
+              
+              echo "know hosts:"
+              cat ~/.ssh/known_hosts
 
-        shell: bash
+          shell: bash
 
-      - name: Create Docker Context
-        run: |
-            docker context create "$SSH_HOST" --docker "host=ssh://$SSH_HOST"
-            docker context use "$SSH_HOST"
+        - name: Create Docker Context
+          run: |
+              docker context create "$SSH_HOST" --docker "host=ssh://$SSH_HOST"
+              docker context use "$SSH_HOST"
 
-      # allows checkout for the sole docker-compose file we need
-      - uses: actions/checkout@v4
-        with:
-            sparse-checkout: |
-                compose.yml
-            sparse-checkout-cone-mode: false
+        # allows checkout for the sole docker-compose file we need
+        - uses: actions/checkout@v4
+          with:
+              sparse-checkout: |
+                  compose.yml
+              sparse-checkout-cone-mode: false
 
-      - name: Deploy to server
-        run: |
-            docker stack deploy --compose-file compose.yml --with-registry-auth --prune $SERVICE_NAME
+        - name: Deploy to server
+          run: |
+              docker stack deploy --compose-file compose.yml --with-registry-auth --prune $SERVICE_NAME
 
