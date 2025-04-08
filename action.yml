@@ -11,13 +11,10 @@ inputs:
   remote_host:
     description: Remote host to connect to
     required: true
-  remote_host_name:
-    description: Docker host name to connect to
-    required: true
-  server_user:
+  remote_user:
     description: Remote user to use
     required: true
-  server_port:
+  remote_port:
     description: Remote port to use
     required: true
   ssh_private_key:
@@ -26,8 +23,8 @@ inputs:
   ssh_known_hosts:
     description: SSH-ed25519 key 
     required: true
-  service_name:
-    description: The name of your service in the swarm
+  stack_name:
+    description: The name of your stack in the swarm
     required: true
 
 jobs:
@@ -45,19 +42,18 @@ jobs:
         - name: Create private key
           env:
               REMOTE_HOST: ${{ input.remote_host }}
-              REMOTE_HOST_NAME: ${{ input.remote_host_name }}
-              SERVER_USER: ${{ input.server_user }}
-              SERVER_PORT: ${{ input.server_port }}
+              REMOTE_USER: ${{ input.remote_user }}
+              REMOTE_PORT: ${{ input.remote_port }}
               SSH_PRIVATE_KEY: ${{ input.ssh_private_key }}
               SSH_KNOWN_HOSTS: ${{ input.ssh_known_hosts }}
-              SERVICE_NAME: ${{ input.service_name }}
+              STACK_NAME: ${{ input.stack_name }}
               
           run: |
               mkdir -p ~/.ssh/
               echo "$SSH_PRIVATE_KEY" >  ~/.ssh/private.key
               sudo chmod 600  ~/.ssh/private.key
-              printf "Host $SSH_HOST
-                  HostName $SSH_HOST_NAME
+              printf "Host docker
+                  HostName $SSH_HOST
                   User $SERVER_USER
                   Port $SERVER_PORT
                   IdentityFile ~/.ssh/private.key" > ~/.ssh/config
@@ -73,8 +69,8 @@ jobs:
 
         - name: Create Docker Context
           run: |
-              docker context create "$SSH_HOST" --docker "host=ssh://$SSH_HOST"
-              docker context use "$SSH_HOST"
+              docker context create docker --docker "host=ssh://docker"
+              docker context use docker
 
         # allows checkout for the sole docker-compose file we need
         - uses: actions/checkout@v4
@@ -85,5 +81,5 @@ jobs:
 
         - name: Deploy to server
           run: |
-              docker stack deploy --compose-file compose.yml --with-registry-auth --prune $SERVICE_NAME
+              docker stack deploy --compose-file compose.yml --with-registry-auth --prune $STACK_NAME
 
