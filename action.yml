@@ -1,31 +1,33 @@
 name: docker-swarm-deploy
 author: Skeyp
 description: A GitHub Action that enables you to publish your app as a Docker stack to a remote Docker swarm.
-inputs:
-  docker_username:
-    description: The docker user repository to push and pull to/from
-    required: true
-  docker_api_key:
-    description: The docker api key associated with the docker user
-    required: true
-  remote_host:
-    description: Remote host to connect to
-    required: true
-  remote_user:
-    description: Remote user to use
-    required: true
-  remote_port:
-    description: Remote port to use
-    required: true
-  ssh_private_key:
-    description: SSH private key to use to connect
-    required: true
-  ssh_known_hosts:
-    description: SSH-ed25519 key 
-    required: true
-  stack_name:
-    description: The name of your stack in the swarm
-    required: true
+on:
+  workflow_call:
+    inputs:
+      docker_username:
+        description: The docker user repository to push and pull to/from
+        required: true
+      docker_api_key:
+        description: The docker api key associated with the docker user
+        required: true
+      remote_host:
+        description: Remote host to connect to
+        required: true
+      remote_user:
+        description: Remote user to use
+        required: true
+      remote_port:
+        description: Remote port to use
+        required: true
+      ssh_private_key:
+        description: SSH private key to use to connect
+        required: true
+      ssh_known_hosts:
+        description: SSH-ed25519 key 
+        required: true
+      stack_name:
+        description: The name of your stack in the swarm
+        required: true
 
 jobs:
   deploy:
