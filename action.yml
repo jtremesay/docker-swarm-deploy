@@ -33,12 +33,11 @@ inputs:
 runs:
   using: 'composite'
   steps:
-      - name: Login to Docker hub
-        uses: docker/login-action@v3
+      - uses: actions/checkout@v4
         with:
-          username: ${{ inputs.docker_username }}
-          password: ${{ inputs.docker_password }}
-
+            sparse-checkout: ${{ inputs.docker_compose_file }}
+            sparse-checkout-cone-mode: false
+            
       - name: Create private key
         shell: bash
         run: |
@@ -60,10 +59,11 @@ runs:
           docker context create docker --docker "host=ssh://docker"
           docker context use docker
 
-      - uses: actions/checkout@v4
+      - name: Login to Docker hub
+        uses: docker/login-action@v3
         with:
-            sparse-checkout: ${{ inputs.docker_compose_file }}
-            sparse-checkout-cone-mode: false
+          username: ${{ inputs.docker_username }}
+          password: ${{ inputs.docker_password }}
 
       - name: Deploy to server
         shell: bash
