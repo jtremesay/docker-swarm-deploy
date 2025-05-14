@@ -37,7 +37,7 @@ runs:
         with:
             sparse-checkout: ${{ inputs.docker_compose_file }}
             sparse-checkout-cone-mode: false
-            
+
       - name: Create private key
         shell: bash
         run: |

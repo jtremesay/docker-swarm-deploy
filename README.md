@@ -58,7 +58,7 @@ jobs:
 
 ```shell
 # Create user
-sudo useradd -m -s /usr/sbin/nologin -G docker github-ci
+sudo useradd -m -G docker github-ci
 
 # Prepare ssh
 sudo -u github-ci -s
