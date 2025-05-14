@@ -55,3 +55,15 @@ jobs:
           ssh_known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
           stack_name: my-docker-stack
 ```
+
+## Côté serveur
+
+```shell
+# Create user
+sudo useradd -m -s /usr/sbin/nologin -G docker github-ci
+
+# Prepare ssh
+sudo -u github-ci -s
+ssh-keygen
+echo 'command="docker system dial-stdio"' $(cat $HOME/.ssh/id_ed25519.pub) >> $HOME/.ssh/authorized_keys
+```
