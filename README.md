@@ -10,12 +10,11 @@ L'action nécessite les entrées suivantes :
 |-----------------------|-------------------------------------------------------|----------|----------------|
 | `docker_compose_file` | Le chemin vers le fichier docker-compose à utiliser.  | No       | `compose.yml`  |
 | `docker_username`     | Nom d'utilisateur Docker Hub pour pousser et tirer des images. | Yes      |                |
-| `docker_api_key`      | Clé API Docker Hub associée au nom d'utilisateur.     | Yes      |                |
+| `docker_password`      | Clé API Docker Hub associée au nom d'utilisateur.     | Yes      |                |
 | `remote_host`         | Hôte distant à connecter.                             | Yes      |                |
 | `remote_user`         | Utilisateur distant pour la connexion SSH.            | Yes      |                |
 | `remote_port`         | Port distant pour la connexion SSH.                   | No       | `22`           |
 | `ssh_private_key`     | Clé privée SSH pour l'authentification.               | Yes      |                |
-| `ssh_known_hosts`     | Hôtes connus SSH (par exemple, clé SSH-ed25519).      | Yes      |                |
 | `stack_name`          | Nom de la stack dans le Docker Swarm.                 | Yes      |                |
 
 ## Workflow Steps
@@ -47,12 +46,11 @@ jobs:
         with:
           docker_compose_file: compose.yml
           docker_username: ${{ secrets.DOCKER_USERNAME }}
-          docker_api_key: ${{ secrets.DOCKER_API_KEY }}
+          docker_password: ${{ secrets.DOCKER_USERNAME }}
           remote_host: ${{ secrets.REMOTE_HOST }}
           remote_user: ${{ secrets.REMOTE_USER }}
           remote_port: 22
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-          ssh_known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
           stack_name: my-docker-stack
 ```
 
