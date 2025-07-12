@@ -69,6 +69,7 @@ runs:
         shell: bash
         run: |
           docker stack deploy \
+            --detach=false \
             --compose-file ${{ inputs.docker_compose_file }} \
             --with-registry-auth\
             --prune \
